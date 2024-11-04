@@ -18,11 +18,11 @@
     position: relative;
   }
 
-  @media (max-width: 768px) {
+  /* @media (max-width: 768px) {
     .member-photo {
       text-align: center;
     }
-  }
+  } */
 
   .member-photo:hover img {
     -webkit-transform: scale(1.2);
@@ -33,11 +33,11 @@
     transition: all 0.4s ease 0s;
   }
 
-  @media (max-width: 768px) {
+  /* @media (max-width: 768px) {
     .member-photo img {
       display: inline-block;
     }
-  }
+  } */
 
   .member-photo .mask {
     background-color: rgba(87, 203, 204, 0.7);
