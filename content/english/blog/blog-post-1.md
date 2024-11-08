@@ -1,64 +1,36 @@
 ---
-title: "How To Wear Bright Shoes"
+title: "Image Denoising"
 date: 2018-09-24T11:07:10+06:00
 author: John Doe
-image : "images/blog/blog-post-1.jpg"
+image : "images/blog/blog-post-1.png"
 bg_image: "images/feature-bg.jpg"
 categories: ["Company News"]
-tags: ["Advice","Technology"]
-description: "this is meta description"
+tags: ["Autoencoder","Computer Vision","Deep Learning","Image Denoising"]
+description: ""
 draft: false
 type: "post"
 ---
 
+source: https://www.kaggle.com/competitions/denoising-dirty-documents
+Image denoising isn’t a trivial task. Our goal is to remove the noise from the image while still trying to preserve the detail in the image. One could use some filters like gaussian or median blur, but they don’t work so well on many kinds of images we come across. If an image is too noisy, then these filters would cause the details in the image to also be blurred out. If you have an image like the one given above </p>
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit vitae placeat ad architecto nostrum asperiores
-vel aperiam, veniam eum nulla. Maxime cum magnam, adipisci architecto quibusdam cumque veniam fugiat quae. Lorem
-ipsum dolor sit amet, consectetur adipisicing elit. Odio vitae ab doloremque accusamus sit, eos dolorum officiis
-a perspiciatis aliquid. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quod, facere. </p>
+You can’t get rid of the big blobs with just some filters, you could use a threshold, then use canny edge detector to denoise it as I explained here. This approach is not very efficient, it requires you to design a model for each type of noisy image and it still may not work very well.
 
-> Lid est laborum dolo rumes fugats untras. Etharums ser quidem rerum facilis dolores nemis omnis fugats vitaes
-nemo minima rerums unsers sadips amets.. Sed ut perspiciatis unde omnis iste natus error
+Before we get into how are we going to use deep learning to solve this task, it would be worth noting that image denoising has its applications not just in denoising the image but upscaling, inpainting, and several others.
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laborum illo deserunt necessitatibus quibusdam sint,
-eos explicabo tenetur molestiae vero facere, aspernatur sit mollitia perferendis reiciendis. Deleniti magni
-explicabo sed alias fugit amet animi molestias ipsum maiores. Praesentium sint, id laborum quos. Tempora
-inventore est, dolor corporis quis doloremque nostrum, eos velit culpa quasi labore. Provident laborum porro
-nihil iste, magnam officia nemo praesentium autem, libero vel officiis. Omnis pariatur nam voluptatem voluptate
-at officia repellat ea beatae eligendi? Mollitia error saepe, aperiam facere. Optio maiores deleniti veritatis
-eaque commodi atque aperiam, debitis iste alias eligendi ut facilis earum! Impedit, tempore.</p>
+In this article, I’ll use this dataset, and a simple autoencoder to achieve the task at hand. Let’s start by importing a bunch of libraries. </p>
 
-```
-  .blog-classic {
-  margin-bottom: 70px;
-  padding-bottom: 70px;
-  border-bottom: 1px solid #efefef;
-  }
-```
+The dataset is given in the directories ```train```, ```train_clean``` and ```test```. To load the dataset I’ve used the following </p>
 
+If you’re wondering why I defined a dataset class, the reason is I want to pair the dirty and clean images for training while still being able to shuffle them. The dataset comprises images of two different dimensions. So, I resized them to ```(420, 540)```.
 
-* hello
-* hello
-* hello
-* hello
-* hello
+Now, coming to the model. I’m using a very simple model. I would advise you to use a more complex model, and train it for a larger number of epochs than I did.</p>
 
-1. hello
-2. hello
-3. hello
-4. hello
+We would need an optimizer and a loss function. For the optimizer, I’ve used the good old ```Adam``` optimizer. For the loss function, I used binary cross-entropy loss as opposed to the popular SSIM because I got rather poor results on the latter. Binary cross-entropy is nonetheless a common loss function used with autoencoders.
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ex error esse a dolore, architecto sapiente, aliquid
-commodi, laudantium eius nemo enim. Enim, fugit voluptatem rem molestiae. Sed totam quis accusantium iste
-nesciunt id exercitationem cumque repudiandae voluptas perspiciatis, consequatur quasi, molestias, culpa odio
-adipisci. Nesciunt optio fugiat iste quam modi, ex vitae odio pariatur! Corrupti explicabo at harum qui
-doloribus, sit dicta nemo, dolor, enim eum molestias fugiat obcaecati autem eligendi? Nisi delectus eaque
-architecto voluptatibus, unde sit minus quae quod eligendi soluta recusandae doloribus, officia, veritatis
-voluptatum eius aliquam quos. Consectetur, nisi? Veritatis totam, unde nostrum exercitationem tempora suscipit,
-molestias, deserunt ipsum laborum aut iste eaque? Vitae delectus dicta maxime non mollitia? Sapiente eos a quia
-eligendi deserunt repudiandae modi molestias tenetur autem pariatur ullam itaque, quas eveniet, illo quam rerum
-ex obcaecati voluptatum nesciunt incidunt culpa provident illum soluta. Voluptas possimus nesciunt inventore
-perspiciatis neque fugiat, magnam natus repellendus praesentium eum voluptatum, alias incidunt, tempora
-reprehenderit recusandae et numquam itaque ratione dolor voluptatibus in commodi ut! Neque deserunt nostrum
-commodi dolor natus quo, non vitae deleniti, vero voluptatem error aspernatur veniam expedita numquam amet quia
-in dolores velit esse molestiae! Iusto architecto accusantium quisquam recusandae quod vero quia.</p>
+Finally, the train function
+
+This part of the code deserves a little explanation. Look at line 6, I’m extracting one dimension out of the images, this is because initially, the image has 3 channels, all of which have the same numbers. To make the training easier, I just used one channel since the values are the same across the channels anyways.
+
+The final result</p>
+![FinalResult](/images/blog/blog-post-1_1.png)

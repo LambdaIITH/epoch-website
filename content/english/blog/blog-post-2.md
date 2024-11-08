@@ -1,52 +1,72 @@
 ---
-title: "How To Wear Bright Shoes"
+title: "Forged Signature Detection: A deep learning Approach"
 date: 2018-09-24T11:07:10+06:00
-author: [ "Mark Dinn", "John Doe" ]
-image : "images/blog/blog-post-2.jpg"
+author: [ "Chirag Mehta" ]
+image : "images/blog/blog-post-2.png"
 bg_image: "images/feature-bg.jpg"
 categories: ["Artificial Intelligence"]
-tags: ["Advice","Retro"]
-description: "this is meta description"
+tags: ["Deep Learning","Pytorch","Computer Vision","Siamese Networks","Signature verification"]
+description: ""
 draft: false
 type: "post"
 ---
 
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Velit vitae placeat ad architecto nostrum asperiores
-vel aperiam, veniam eum nulla. Maxime cum magnam, adipisci architecto quibusdam cumque veniam fugiat quae. Lorem
-ipsum dolor sit amet, consectetur adipisicing elit. Odio vitae ab doloremque accusamus sit, eos dolorum officiis
-a perspiciatis aliquid. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quod, facere. </p>
+Signature verification is an essential task in Computer Vision. The approach to solving the problem can vary based on the kind of problem we have. In this article, we will try to solve the offline signature verification problem and would use a writer-independent approach. </p>
 
-> Lid est laborum dolo rumes fugats untras. Etharums ser quidem rerum facilis dolores nemis omnis fugats vitaes
-nemo minima rerums unsers sadips amets.. Sed ut perspiciatis unde omnis iste natus error
+## **Online vs Offline**
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Laborum illo deserunt necessitatibus quibusdam sint,
-eos explicabo tenetur molestiae vero facere, aspernatur sit mollitia perferendis reiciendis. Deleniti magni
-explicabo sed alias fugit amet animi molestias ipsum maiores. Praesentium sint, id laborum quos. Tempora
-inventore est, dolor corporis quis doloremque nostrum, eos velit culpa quasi labore. Provident laborum porro
-nihil iste, magnam officia nemo praesentium autem, libero vel officiis. Omnis pariatur nam voluptatem voluptate
-at officia repellat ea beatae eligendi? Mollitia error saepe, aperiam facere. Optio maiores deleniti veritatis
-eaque commodi atque aperiam, debitis iste alias eligendi ut facilis earum! Impedit, tempore.</p>
+To capture signatures online, you would need an electronic device that can record a sequence of coordinates, writing speed, and pressure. These would be used as additional information in the verification process. However, it is not always possible to have such a device around. For example, with cheques, you cannot get such additional information. With such an amount of money being involved with the banking industry, offline signature verification becomes a rather crucial problem.</p>
 
-```
-  .blog-classic {
-  margin-bottom: 70px;
-  padding-bottom: 70px;
-  border-bottom: 1px solid #efefef;
-  }
-```
+## **Writer Dependent vs Writer Independent**
+As the names suggest, in writer dependent approach a model is trained for every writer, while in the case of writer independent, the model is trained independently of the writer. Writer dependent system needs to be updated with every new writer.
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ex error esse a dolore, architecto sapiente, aliquid
-commodi, laudantium eius nemo enim. Enim, fugit voluptatem rem molestiae. Sed totam quis accusantium iste
-nesciunt id exercitationem cumque repudiandae voluptas perspiciatis, consequatur quasi, molestias, culpa odio
-adipisci. Nesciunt optio fugiat iste quam modi, ex vitae odio pariatur! Corrupti explicabo at harum qui
-doloribus, sit dicta nemo, dolor, enim eum molestias fugiat obcaecati autem eligendi? Nisi delectus eaque
-architecto voluptatibus, unde sit minus quae quod eligendi soluta recusandae doloribus, officia, veritatis
-voluptatum eius aliquam quos. Consectetur, nisi? Veritatis totam, unde nostrum exercitationem tempora suscipit,
-molestias, deserunt ipsum laborum aut iste eaque? Vitae delectus dicta maxime non mollitia? Sapiente eos a quia
-eligendi deserunt repudiandae modi molestias tenetur autem pariatur ullam itaque, quas eveniet, illo quam rerum
-ex obcaecati voluptatum nesciunt incidunt culpa provident illum soluta. Voluptas possimus nesciunt inventore
-perspiciatis neque fugiat, magnam natus repellendus praesentium eum voluptatum, alias incidunt, tempora
-reprehenderit recusandae et numquam itaque ratione dolor voluptatibus in commodi ut! Neque deserunt nostrum
-commodi dolor natus quo, non vitae deleniti, vero voluptatem error aspernatur veniam expedita numquam amet quia
-in dolores velit esse molestiae! Iusto architecto accusantium quisquam recusandae quod vero quia.</p>
+We need to somehow measure some sort of distance between signatures. The distance should be high between a true signature and a forged one, while it should be small between two true signatures. The formulation directs us to siamese networks.
+
+## **Siamese Network**
+
+Siamese network (twin neural network) is often described as having two networks that are identical. The structure, the weights, and the updates of weights are all the same. The input is passed through the network to get an embedding vector which is what we would use to calculate the “distance” between two inputs. I’m not particularly fond of this definition, the way I like to think of it is just one network, which gives you an output layer vector, and that is what you use to find the “distance” between two inputs.</p>
+
+![SiameseNetwork](/images/blog/blog-post-2_1.png)
+source: https://pyimagesearch.com/2020/11/30/siamese-networks-with-keras-tensorflow-and-deep-learning/
+## **Loss Function**
+
+Siamese network is often trained with triplet or contrastive loss. In this article, I will use contrastive loss because that’s what SigNet uses.
+### Contrastive Loss
+
+![FinalResult](/images/blog/blog-post-2_2.png)
+
+Here, s1 and s2 are the two samples, y is a binary indicator of whether the two samples belong to the same class or not, y=0 if the samples belong to the same class. alpha and beta are two fixed constants, m is the margin. The signet paper uses m=1. In this article, I’ll use m=10. Dw is the euclidian distance computed in the embedding feature space.
+
+From the SigNet paper</p>
+image4</p>
+
+> Siamese network aims to bring the output feature vectors closer for input pairs that are labelled as similar, and push the feature vectors away if the input pairs are dissimilar.
+
+## **The Code**
+
+The dataset used for this code is CEDAR.
+
+We will start by writing down our network and defining the loss, I’ve written a very simple network, the aim of the code is to just demonstrate signature verification and not to achieve good results.
+
+Instead of pooling layers, I’ve used stride=2 to downsample.
+
+Importing the essential libraries
+
+Next, we need to fetch all the images from the directory in which they are present. Then we need to resize them and convert to tensor
+
+Next, we need to create a Dataloader. My Dataloader is rather ugly. We need to give a tuple of two images and target to the network for training. We would also want to give enough true and forged samples to the network to train properly. I randomly choose the images while trying to maintain an equal probability of giving true and different (forged+totally different signatures). This slows the program and also might cause the network to see some samples more often than others. In the future, I’ll try to come up with a better Dataloader.
+
+Now, we just have to initialize the network and select an optimizer. I’ve used the good old ADAM optimizer.
+
+Now the training
+
+In order to decide if two images belong to the same class or a dissimilar class, we need to set a threshold value on the distance, or one could use the sigmoid function and then set a threshold on the “confidence”. </p>
+
+![FinalResult](/images/blog/blog-post-2.png)
+
+Here I calculate the distance between the set of images given above</p>
+> The results obtained  
+> tensor([0.1780])  
+> tensor([12.5088])  
+> tensor([13.8891])
